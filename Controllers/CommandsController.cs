@@ -23,40 +23,24 @@ namespace Apex.Controllers
 #pragma warning restore CS1591
     //Get api/Commands
     /// <summary>
-    /// Gets multiple Commands, can be sorted
+    /// Gets multiple Commands
     /// </summary>
     /// <remarks>
-    /// Get all Applications:
+    /// Get all Commands:
     ///
     ///     GET /Commands
     ///     {
     ///     }
     ///
-    /// Sort by Number of Applications:
-    ///
-    ///     GET /Commands?sortMethod=numOfApplications
-    ///     {
-    ///     }
-    ///
-    /// Sort by Average Rating:
-    ///
-    ///     GET /Commands?sortMethod=averageRating
-    ///     {
-    ///     }
     ///
     ///
     /// </remarks>
     ///
-    /// <param name="sortMethod">Either blank, numOfApplications, or averageRating</param>
-    // [DisableCors]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Command>>> Get(string sortMethod)
     {
       var query = _db.Commands.AsQueryable();
-      // if (sortMethod == "numOfApplications")
-      // {
-      //   query = _db.Commands.OrderByDescending(Command => Command.NumOfApplications);
-      // }
+      query = _db.Commands.OrderByDescending(Command => Command.CallCount);
       // else if (sortMethod == "averageRating")
       // {
       //   query = _db.Commands.OrderByDescending(Command => Command.AverageRating);
@@ -68,35 +52,35 @@ namespace Apex.Controllers
       return await query.ToListAsync();
     }
 
-    // //Post api/Commands
-    // /// <summary>
-    // /// Creates new Command
-    // /// </summary>
-    // /// <remarks>
-    // /// Sample request:
-    // ///
-    // ///     Post /Commands
-    // ///     {
-    // ///       "Country": "Sample Country",
-    // ///       "City": "Sample City",
-    // ///       "Name": "Sample Name",
-    // ///       "AverageRating": a decimal number,
-    // ///       "NumOfApplications": an integer
-    // ///       "ImgLink": "A URL string of Command"
-    // ///     }
-    // ///
-    // ///
-    // /// </remarks>
-    // ///
-    // /// <param name="Command">A Command</param>
-    // /// <response code="201">Returns a newly created Command</response>
-    // [HttpPost]
-    // public async Task<ActionResult<Command>> Post(Command Command)
-    // {
-    //   _db.Commands.Add(Command);
-    //   await _db.SaveChangesAsync();
-    //   return CreatedAtAction("Post", new { id = Command.CommandId }, Command);
-    // }
+    //Post api/Commands
+    /// <summary>
+    /// Creates new Command
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     Post /Commands
+    ///     {
+    ///       "Country": "Sample Country",
+    ///       "City": "Sample City",
+    ///       "Name": "Sample Name",
+    ///       "AverageRating": a decimal number,
+    ///       "NumOfApplications": an integer
+    ///       "ImgLink": "A URL string of Command"
+    ///     }
+    ///
+    ///
+    /// </remarks>
+    ///
+    /// <param name="Command">A Command</param>
+    /// <response code="201">Returns a newly created Command</response>
+    [HttpPost]
+    public async Task<ActionResult<Command>> Post(Command Command)
+    {
+      _db.Commands.Add(Command);
+      await _db.SaveChangesAsync();
+      return CreatedAtAction("Post", new { id = Command.CommandId }, Command);
+    }
 
 
 
