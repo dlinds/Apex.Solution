@@ -12,9 +12,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Apex.Models;
 using System.Reflection;
+using Microsoft.IdentityModel.Tokens;
 using System.IO;
+using System.Text;
 
 namespace Apex
 {
@@ -33,17 +36,32 @@ namespace Apex
 
       services.AddDbContext<ApexContext>(opt =>
           opt.UseMySql(Configuration["ConnectionStrings:DefaultConnection"], ServerVersion.AutoDetect(Configuration["ConnectionStrings:DefaultConnection"])));
-      services.AddCors(options =>
+      // services.AddCors(options =>
+      //   {
+      //     options.AddPolicy("Policy1",
+      //                       policy =>
+      //                       {
+      //                         policy.WithOrigins("https://localhost:5001",
+      //                                               "http://localhost:3001").WithMethods("PUT", "DELETE", "GET");
+      //                       });
+      //   });
+      services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
         {
-          options.AddPolicy("Policy1",
-                            policy =>
-                            {
-                              policy.WithOrigins("https://localhost:5001",
-                                                    "http://localhost:3001").WithMethods("PUT", "DELETE", "GET");
-                            });
+          options.TokenValidationParameters = new TokenValidationParameters
+          {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = Configuration["Jwt:Issuer"],
+            ValidAudience = Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+          };
         });
-
       services.AddControllers();
+      services.AddMvc();
+      services.AddRazorPages();
       services.AddSwaggerGen(c =>
       {
         c.SwaggerDoc("v1", new OpenApiInfo
@@ -74,13 +92,14 @@ namespace Apex
       }
 
       // app.UseHttpsRedirection();
-
+      app.UseAuthentication();
       app.UseRouting();
-      app.UseCors();
+      app.UseHttpsRedirection();
       app.UseAuthorization();
 
       app.UseEndpoints(endpoints =>
       {
+        endpoints.MapRazorPages();
         endpoints.MapControllers();
       });
     }
