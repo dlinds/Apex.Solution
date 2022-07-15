@@ -109,12 +109,32 @@ namespace Apex.Controllers
       return Ok("Success");
     }
 
-    [HttpPut("Update")]
+    [HttpPut()]
     public async Task<IActionResult> UpdateApplication(Application application)
     {
       _db.Entry(application).State = EntityState.Modified;
       await _db.SaveChangesAsync();
       return Ok("Success");
+    }
+
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteApplication(string id)
+    {
+      Guid applicationId = Guid.Parse(id);
+      Application application = await _db.Applications.FindAsync(applicationId);
+      try
+      {
+        if (application == null) throw new Exception("Application not found");
+
+        _db.Applications.Remove(application);
+        await _db.SaveChangesAsync();
+        return Ok("Deleted");
+      }
+      catch (Exception error)
+      {
+        return NotFound(error.Message);
+      }
     }
 
 #pragma warning restore CS1591
