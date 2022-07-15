@@ -19,7 +19,6 @@ namespace Apex.Models
     public bool Resolved { get; set; }
     public string Content { get; set; }
 
-    public virtual Administrator Administrator { get; set; }
     public virtual ICollection<UserQueryApplication> JoinEntitiesApplication { get; }
     public virtual ICollection<UserQueryCommand> JoinEntitiesCommand { get; }
   }

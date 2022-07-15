@@ -3,14 +3,16 @@ using System;
 using Apex.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Apex.Solution.Migrations
 {
     [DbContext(typeof(ApexContext))]
-    partial class ApexContextModelSnapshot : ModelSnapshot
+    [Migration("20220715182133_RemoveAdministratorFromUserQuery")]
+    partial class RemoveAdministratorFromUserQuery
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

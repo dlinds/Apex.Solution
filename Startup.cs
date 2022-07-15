@@ -90,7 +90,7 @@ namespace Apex
         app.UseSwagger();
         app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Apex v1"));
       }
-
+      app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
       // app.UseHttpsRedirection();
       app.UseAuthentication();
       app.UseRouting();
