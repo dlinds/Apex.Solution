@@ -28,7 +28,7 @@ namespace Apex.Controllers
       _db = db;
     }
 
-    [HttpGet("FindCommand")]
+    [HttpGet("Find")]
     // [Authorize(Roles = "Administrator,Viewer")]
     public async Task<IActionResult> Controller(string searchTerm, string appName, string amazonEmail, string submissionText)
     {
@@ -88,6 +88,26 @@ namespace Apex.Controllers
         }
         await _db.SaveChangesAsync();
       }
+    }
+
+    [HttpPost("Add")]
+    public async Task<IActionResult> AddCommand(string keyword, string shortcut, string applicationId)
+    {
+      // keyword, shortcut, adminID = e7f406ad-56af-433c-a20f-28e354524489, appId = 15bd7f44-c56e-4fb2-81ca-6b5b120ec16b (Windows)
+      Command newCommand = new Command
+      {
+        Keyword = keyword,
+        Shortcut = shortcut,
+      };
+      await _db.Commands.AddAsync(newCommand);
+      CommandApplication join = new CommandApplication
+      {
+        ApplicationId = Guid.Parse(applicationId),
+        CommandId = newCommand.CommandId
+      };
+      await _db.CommandApplications.AddAsync(join);
+      await _db.SaveChangesAsync();
+      return Ok("Success");
     }
   }
 
