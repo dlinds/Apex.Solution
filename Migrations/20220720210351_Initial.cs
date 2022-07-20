@@ -185,12 +185,19 @@ namespace Apex.Solution.Migrations
                     CommandId = table.Column<Guid>(type: "char(36)", nullable: false),
                     Keyword = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
                     Shortcut = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    CallCount = table.Column<int>(type: "int", nullable: true),
+                    CallCount = table.Column<int>(type: "int", nullable: false),
+                    ApplicationId = table.Column<Guid>(type: "char(36)", nullable: true),
                     AdministratorId = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Commands", x => x.CommandId);
+                    table.ForeignKey(
+                        name: "FK_Commands_Applications_ApplicationId",
+                        column: x => x.ApplicationId,
+                        principalTable: "Applications",
+                        principalColumn: "ApplicationId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Commands_AspNetUsers_AdministratorId",
                         column: x => x.AdministratorId,
@@ -208,92 +215,24 @@ namespace Apex.Solution.Migrations
                     Timestamp = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Resolved = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Content = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
-                    AdministratorId = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", nullable: true)
+                    ApplicationId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    CommandId = table.Column<Guid>(type: "char(36)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserQueries", x => x.UserQueryId);
                     table.ForeignKey(
-                        name: "FK_UserQueries_AspNetUsers_AdministratorId",
-                        column: x => x.AdministratorId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
+                        name: "FK_UserQueries_Applications_ApplicationId",
+                        column: x => x.ApplicationId,
+                        principalTable: "Applications",
+                        principalColumn: "ApplicationId",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CommandApplications",
-                columns: table => new
-                {
-                    CommandApplicationId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    CommandId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    ApplicationId = table.Column<Guid>(type: "char(36)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CommandApplications", x => x.CommandApplicationId);
                     table.ForeignKey(
-                        name: "FK_CommandApplications_Applications_ApplicationId",
-                        column: x => x.ApplicationId,
-                        principalTable: "Applications",
-                        principalColumn: "ApplicationId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CommandApplications_Commands_CommandId",
+                        name: "FK_UserQueries_Commands_CommandId",
                         column: x => x.CommandId,
                         principalTable: "Commands",
                         principalColumn: "CommandId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserQueryApplications",
-                columns: table => new
-                {
-                    UserQueryApplicationId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    UserQueryId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    ApplicationId = table.Column<Guid>(type: "char(36)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserQueryApplications", x => x.UserQueryApplicationId);
-                    table.ForeignKey(
-                        name: "FK_UserQueryApplications_Applications_ApplicationId",
-                        column: x => x.ApplicationId,
-                        principalTable: "Applications",
-                        principalColumn: "ApplicationId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserQueryApplications_UserQueries_UserQueryId",
-                        column: x => x.UserQueryId,
-                        principalTable: "UserQueries",
-                        principalColumn: "UserQueryId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserQueryCommands",
-                columns: table => new
-                {
-                    UserQueryCommandId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    UserQueryId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    CommandId = table.Column<Guid>(type: "char(36)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserQueryCommands", x => x.UserQueryCommandId);
-                    table.ForeignKey(
-                        name: "FK_UserQueryCommands_Commands_CommandId",
-                        column: x => x.CommandId,
-                        principalTable: "Commands",
-                        principalColumn: "CommandId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserQueryCommands_UserQueries_UserQueryId",
-                        column: x => x.UserQueryId,
-                        principalTable: "UserQueries",
-                        principalColumn: "UserQueryId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -339,44 +278,24 @@ namespace Apex.Solution.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommandApplications_ApplicationId",
-                table: "CommandApplications",
-                column: "ApplicationId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CommandApplications_CommandId",
-                table: "CommandApplications",
-                column: "CommandId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Commands_AdministratorId",
                 table: "Commands",
                 column: "AdministratorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserQueries_AdministratorId",
-                table: "UserQueries",
-                column: "AdministratorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserQueryApplications_ApplicationId",
-                table: "UserQueryApplications",
+                name: "IX_Commands_ApplicationId",
+                table: "Commands",
                 column: "ApplicationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserQueryApplications_UserQueryId",
-                table: "UserQueryApplications",
-                column: "UserQueryId");
+                name: "IX_UserQueries_ApplicationId",
+                table: "UserQueries",
+                column: "ApplicationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserQueryCommands_CommandId",
-                table: "UserQueryCommands",
+                name: "IX_UserQueries_CommandId",
+                table: "UserQueries",
                 column: "CommandId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserQueryCommands_UserQueryId",
-                table: "UserQueryCommands",
-                column: "UserQueryId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -397,25 +316,16 @@ namespace Apex.Solution.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CommandApplications");
-
-            migrationBuilder.DropTable(
-                name: "UserQueryApplications");
-
-            migrationBuilder.DropTable(
-                name: "UserQueryCommands");
+                name: "UserQueries");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Applications");
-
-            migrationBuilder.DropTable(
                 name: "Commands");
 
             migrationBuilder.DropTable(
-                name: "UserQueries");
+                name: "Applications");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

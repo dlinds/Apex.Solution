@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Apex.Solution.Migrations
 {
     [DbContext(typeof(ApexContext))]
-    [Migration("20220715051605_Initial")]
+    [Migration("20220720210351_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -129,7 +129,10 @@ namespace Apex.Solution.Migrations
                     b.Property<string>("AdministratorId")
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
-                    b.Property<int?>("CallCount")
+                    b.Property<Guid?>("ApplicationId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("CallCount")
                         .HasColumnType("int");
 
                     b.Property<string>("Keyword")
@@ -142,28 +145,9 @@ namespace Apex.Solution.Migrations
 
                     b.HasIndex("AdministratorId");
 
-                    b.ToTable("Commands");
-                });
-
-            modelBuilder.Entity("Apex.Models.CommandApplication", b =>
-                {
-                    b.Property<Guid>("CommandApplicationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("ApplicationId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("CommandId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("CommandApplicationId");
-
                     b.HasIndex("ApplicationId");
 
-                    b.HasIndex("CommandId");
-
-                    b.ToTable("CommandApplications");
+                    b.ToTable("Commands");
                 });
 
             modelBuilder.Entity("Apex.Models.UserQuery", b =>
@@ -172,11 +156,14 @@ namespace Apex.Solution.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("AdministratorId")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
                     b.Property<string>("AmazonEmail")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<Guid?>("ApplicationId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("CommandId")
+                        .HasColumnType("char(36)");
 
                     b.Property<string>("Content")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -189,51 +176,11 @@ namespace Apex.Solution.Migrations
 
                     b.HasKey("UserQueryId");
 
-                    b.HasIndex("AdministratorId");
-
-                    b.ToTable("UserQueries");
-                });
-
-            modelBuilder.Entity("Apex.Models.UserQueryApplication", b =>
-                {
-                    b.Property<Guid>("UserQueryApplicationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("ApplicationId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("UserQueryId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("UserQueryApplicationId");
-
                     b.HasIndex("ApplicationId");
-
-                    b.HasIndex("UserQueryId");
-
-                    b.ToTable("UserQueryApplications");
-                });
-
-            modelBuilder.Entity("Apex.Models.UserQueryCommand", b =>
-                {
-                    b.Property<Guid>("UserQueryCommandId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("CommandId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("UserQueryId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("UserQueryCommandId");
 
                     b.HasIndex("CommandId");
 
-                    b.HasIndex("UserQueryId");
-
-                    b.ToTable("UserQueryCommands");
+                    b.ToTable("UserQueries");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -379,73 +326,28 @@ namespace Apex.Solution.Migrations
                         .WithMany()
                         .HasForeignKey("AdministratorId");
 
-                    b.Navigation("Administrator");
-                });
-
-            modelBuilder.Entity("Apex.Models.CommandApplication", b =>
-                {
                     b.HasOne("Apex.Models.Application", "Application")
-                        .WithMany("JoinEntities")
-                        .HasForeignKey("ApplicationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany()
+                        .HasForeignKey("ApplicationId");
 
-                    b.HasOne("Apex.Models.Command", "Command")
-                        .WithMany("JoinEntities")
-                        .HasForeignKey("CommandId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Administrator");
 
                     b.Navigation("Application");
-
-                    b.Navigation("Command");
                 });
 
             modelBuilder.Entity("Apex.Models.UserQuery", b =>
                 {
-                    b.HasOne("Apex.Models.Administrator", "Administrator")
-                        .WithMany()
-                        .HasForeignKey("AdministratorId");
-
-                    b.Navigation("Administrator");
-                });
-
-            modelBuilder.Entity("Apex.Models.UserQueryApplication", b =>
-                {
                     b.HasOne("Apex.Models.Application", "Application")
                         .WithMany()
-                        .HasForeignKey("ApplicationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ApplicationId");
 
-                    b.HasOne("Apex.Models.UserQuery", "UserQuery")
-                        .WithMany("JoinEntitiesApplication")
-                        .HasForeignKey("UserQueryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Apex.Models.Command", "Command")
+                        .WithMany()
+                        .HasForeignKey("CommandId");
 
                     b.Navigation("Application");
 
-                    b.Navigation("UserQuery");
-                });
-
-            modelBuilder.Entity("Apex.Models.UserQueryCommand", b =>
-                {
-                    b.HasOne("Apex.Models.Command", "Command")
-                        .WithMany()
-                        .HasForeignKey("CommandId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Apex.Models.UserQuery", "UserQuery")
-                        .WithMany("JoinEntitiesCommand")
-                        .HasForeignKey("UserQueryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Command");
-
-                    b.Navigation("UserQuery");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -497,23 +399,6 @@ namespace Apex.Solution.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Apex.Models.Application", b =>
-                {
-                    b.Navigation("JoinEntities");
-                });
-
-            modelBuilder.Entity("Apex.Models.Command", b =>
-                {
-                    b.Navigation("JoinEntities");
-                });
-
-            modelBuilder.Entity("Apex.Models.UserQuery", b =>
-                {
-                    b.Navigation("JoinEntitiesApplication");
-
-                    b.Navigation("JoinEntitiesCommand");
                 });
 #pragma warning restore 612, 618
         }

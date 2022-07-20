@@ -8,10 +8,10 @@ namespace Apex.Models
   {
     public DbSet<Application> Applications { get; set; }
     public DbSet<Command> Commands { get; set; }
-    public DbSet<CommandApplication> CommandApplications { get; set; }
+    // public DbSet<CommandApplication> CommandApplications { get; set; }
     public DbSet<UserQuery> UserQueries { get; set; }
-    public DbSet<UserQueryApplication> UserQueryApplications { get; set; }
-    public DbSet<UserQueryCommand> UserQueryCommands { get; set; }
+    // public DbSet<UserQueryApplication> UserQueryApplications { get; set; }
+    // public DbSet<UserQueryCommand> UserQueryCommands { get; set; }
     public DbSet<Administrator> Administrators { get; set; }
 
     public ApexContext(DbContextOptions options) : base(options) { }

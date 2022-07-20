@@ -34,20 +34,10 @@ namespace Apex.Controllers
     {
       Application application = await _db.Applications.FirstOrDefaultAsync(x => x.Name == appName);
       if (application == null) throw new Exception("Did not find application by that name");
-      Command commandOutput = new Command();
       bool wasResolved = false;
       try
       {
-        foreach (Command command in await _db.Commands.Where(x => x.Keyword == searchTerm).ToListAsync())
-        {
-          foreach (var join in command.JoinEntities)
-          {
-            if (join.Application.ApplicationId == application.ApplicationId)
-            {
-              commandOutput = command;
-            }
-          }
-        }
+        Command commandOutput = await _db.Commands.FirstOrDefaultAsync(x => x.Keyword == searchTerm && x.Application == application);
         if (commandOutput.Shortcut == null) throw new Exception("Did not find a matching command");
         wasResolved = true;
         commandOutput.CallCount++;
@@ -70,22 +60,6 @@ namespace Apex.Controllers
         };
 
         await _db.UserQueries.AddAsync(query);
-
-        if (wasResolved)
-        {
-          UserQueryCommand userQueryCommand = new UserQueryCommand
-          {
-            UserQueryId = query.UserQueryId,
-            CommandId = commandOutput.CommandId
-          };
-          UserQueryApplication userQueryApplication = new UserQueryApplication
-          {
-            UserQueryId = query.UserQueryId,
-            ApplicationId = application.ApplicationId
-          };
-          await _db.UserQueryCommands.AddAsync(userQueryCommand);
-          await _db.UserQueryApplications.AddAsync(userQueryApplication);
-        }
         await _db.SaveChangesAsync();
       }
     }
@@ -94,18 +68,15 @@ namespace Apex.Controllers
     public async Task<IActionResult> AddCommand(string keyword, string shortcut, string applicationId)
     {
       // keyword, shortcut, adminID = e7f406ad-56af-433c-a20f-28e354524489, appId = 15bd7f44-c56e-4fb2-81ca-6b5b120ec16b (Windows)
+      Application application = await _db.Applications.FirstOrDefaultAsync(x => x.ApplicationId == new Guid(applicationId));
       Command newCommand = new Command
       {
         Keyword = keyword,
         Shortcut = shortcut,
+        Application = application
       };
       await _db.Commands.AddAsync(newCommand);
-      CommandApplication join = new CommandApplication
-      {
-        ApplicationId = Guid.Parse(applicationId),
-        CommandId = newCommand.CommandId
-      };
-      await _db.CommandApplications.AddAsync(join);
+
       await _db.SaveChangesAsync();
       return Ok("Success");
     }

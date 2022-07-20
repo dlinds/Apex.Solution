@@ -8,7 +8,6 @@ namespace Apex.Models
   {
     public Application()
     {
-      this.JoinEntities = new HashSet<CommandApplication>();
       this.ApplicationId = new Guid();
     }
     public Guid ApplicationId { get; set; }
@@ -17,7 +16,6 @@ namespace Apex.Models
     public string Version { get; set; }
 
     public virtual Administrator Administrator { get; set; }
-    public virtual ICollection<CommandApplication> JoinEntities { get; }
   }
 #pragma warning restore CS1591
 }

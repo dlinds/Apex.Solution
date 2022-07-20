@@ -8,7 +8,6 @@ namespace Apex.Models
   {
     public Command()
     {
-      this.JoinEntities = new HashSet<CommandApplication>();
       this.CommandId = new Guid();
       this.CallCount = 0;
     }
@@ -16,9 +15,10 @@ namespace Apex.Models
     public string Keyword { get; set; }
     public string Shortcut { get; set; }
     public int CallCount { get; set; }
+    public virtual Application Application { get; set; }
 
     public virtual Administrator Administrator { get; set; }
-    public virtual ICollection<CommandApplication> JoinEntities { get; }
+
   }
 #pragma warning restore CS1591
 }

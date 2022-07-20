@@ -17,6 +17,8 @@ using Apex.Models;
 using System.Reflection;
 using Microsoft.IdentityModel.Tokens;
 using System.IO;
+
+
 using System.Text;
 
 namespace Apex
@@ -61,6 +63,8 @@ namespace Apex
         });
       services.AddControllers();
       services.AddMvc();
+      //     services.AddControllers().AddJsonOptions(x =>
+      //  x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
       services.AddRazorPages();
       services.AddSwaggerGen(c =>
       {

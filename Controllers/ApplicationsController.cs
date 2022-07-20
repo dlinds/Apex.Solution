@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Apex.Models;
 using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Apex.Controllers
 {
@@ -47,6 +49,32 @@ namespace Apex.Controllers
       }
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Application>> GetApplicationById(string id)
+    {
+      Guid applicationId = Guid.Parse(id);
+
+      Application application = await _db.Applications.FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
+      Console.WriteLine(application.Name);
+      try
+      {
+        // if (application.Name == null) throw new Exception("Application not found");
+        // string jsonAnimal = JsonConvert.SerializeObject(application);
+        // Console.WriteLine(json);
+        // var test = JsonConvert.DeserializeObject<Application>(application);
+        return new Application()
+        {
+          ApplicationId = application.ApplicationId,
+          Name = application.Name,
+
+        };
+      }
+      catch
+      {
+        return NotFound("Application not found");
+      }
+    }
+
     [HttpGet("Find")]
     public async Task<ActionResult<IEnumerable<Application>>> Find(string name, string manufacturer, string version)
     {
@@ -55,33 +83,30 @@ namespace Apex.Controllers
       {
         if (name != null)
         {
-          query = query.Where(x => x.Name == name).OrderByDescending(x => x.Name);
+          query = query.Where(x => x.Name.ToLower() == name.ToLower()).OrderByDescending(x => x.Name);
         }
         if (manufacturer != null)
         {
-          query = query.Where(x => x.Manufacturer == manufacturer).OrderByDescending(x => x.Manufacturer);
+          query = query.Where(x => x.Manufacturer.ToLower() == manufacturer.ToLower()).OrderByDescending(x => x.Manufacturer);
         }
         if (version != null)
         {
-          query = query.Where(x => x.Version == version).OrderByDescending(x => x.Version);
+          query = query.Where(x => x.Version.ToLower() == version.ToLower()).OrderByDescending(x => x.Version);
         }
-        List<Application> appsWithJoins = await query.ToListAsync();
-        if (appsWithJoins.Count > 0)
+
+        if (await query.CountAsync() > 0)
         {
-          List<Application> apps = new List<Application>();
-          foreach (Application application in appsWithJoins)
-          {
-            apps.Add(
-              new Application
-              {
-                ApplicationId = application.ApplicationId,
-                Manufacturer = application.Manufacturer,
-                Name = application.Name,
-                Version = application.Version,
-                Administrator = application.Administrator
-              });
-          }
-          return apps;
+          List<Application> appsWithoutJoins = await query.Select(x =>
+            new Application
+            {
+              ApplicationId = x.ApplicationId,
+              Manufacturer = x.Manufacturer,
+              Name = x.Name,
+              Version = x.Version,
+              Administrator = x.Administrator
+            }
+          ).ToListAsync();
+          return appsWithoutJoins;
         }
         else
         {
@@ -116,7 +141,6 @@ namespace Apex.Controllers
       await _db.SaveChangesAsync();
       return Ok("Success");
     }
-
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteApplication(string id)

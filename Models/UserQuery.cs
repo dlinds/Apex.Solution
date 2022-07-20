@@ -10,8 +10,7 @@ namespace Apex.Models
     public UserQuery()
     {
       this.UserQueryId = new Guid();
-      this.JoinEntitiesApplication = new HashSet<UserQueryApplication>();
-      this.JoinEntitiesCommand = new HashSet<UserQueryCommand>();
+
     }
     public Guid UserQueryId { get; set; }
     public string AmazonEmail { get; set; }
@@ -19,8 +18,8 @@ namespace Apex.Models
     public bool Resolved { get; set; }
     public string Content { get; set; }
 
-    public virtual ICollection<UserQueryApplication> JoinEntitiesApplication { get; }
-    public virtual ICollection<UserQueryCommand> JoinEntitiesCommand { get; }
+    public virtual Application Application { get; set; }
+    public virtual Command Command { get; set; }
   }
 #pragma warning restore CS1591
 }
