@@ -44,7 +44,7 @@ namespace Apex.Controllers
         commandOutput.CallCount++;
         _db.Entry(commandOutput).State = EntityState.Modified;
         await _db.SaveChangesAsync();
-        return Ok($"Apex says {commandOutput.Shortcut}");
+        return Ok($"Apex says push {commandOutput.Shortcut}");
       }
       catch (Exception e)
       {

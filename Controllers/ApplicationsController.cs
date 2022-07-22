@@ -116,7 +116,7 @@ namespace Apex.Controllers
       try
       {
         Application currentApplication = await _db.Applications.FirstOrDefaultAsync(x => x.Name == name && x.Version == version && x.Manufacturer == manufacturer);
-        if (currentApplication.Name != null) throw new Exception("Already exists");
+        if (currentApplication != null) throw new Exception("Already exists");
         Application newApplication = new Application
         {
           Name = name,
@@ -125,7 +125,7 @@ namespace Apex.Controllers
         };
         await _db.Applications.AddAsync(newApplication);
         await _db.SaveChangesAsync();
-        return Ok("Success");
+        return Ok(newApplication.ApplicationId);
       }
       catch
       {
