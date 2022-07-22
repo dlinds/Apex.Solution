@@ -32,12 +32,13 @@ namespace Apex.Controllers
     // [Authorize(Roles = "Administrator,Viewer")]
     public async Task<IActionResult> Controller(string searchTerm, string appName, string amazonEmail, string submissionText)
     {
-      Application application = await _db.Applications.FirstOrDefaultAsync(x => x.Name == appName);
-      if (application == null) throw new Exception("Did not find application by that name");
       bool wasResolved = false;
       try
       {
-        Command commandOutput = await _db.Commands.FirstOrDefaultAsync(x => x.Keyword == searchTerm && x.Application == application);
+        if (searchTerm == null || appName == null) throw new Exception("You must include an application and search term");
+        List<Application> applications = await _db.Applications.Where(x => x.Name == appName).ToListAsync();
+        if (applications.Count == 0) throw new Exception("Did not find any applications by that name");
+        Command commandOutput = await _db.Commands.FirstOrDefaultAsync(x => x.Keyword == searchTerm && x.Application == applications[0]);
         if (commandOutput.Shortcut == null) throw new Exception("Did not find a matching command");
         wasResolved = true;
         commandOutput.CallCount++;
@@ -45,9 +46,9 @@ namespace Apex.Controllers
         await _db.SaveChangesAsync();
         return Ok($"Apex says {commandOutput.Shortcut}");
       }
-      catch
+      catch (Exception e)
       {
-        return NotFound("A shortcut could not be found. We have logged your query");
+        return NotFound(e.Message.ToString());
       }
       finally
       {
@@ -64,6 +65,40 @@ namespace Apex.Controllers
       }
     }
 
+    [HttpGet("AppId")]
+    public async Task<ActionResult<List<Command>>> GetCommandsByAppId(string id)
+    {
+      Guid applicationId = Guid.Parse(id);
+      try
+      {
+        Application application = await _db.Applications.FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
+        if (application.Name == null) throw new Exception("No application was found");
+        List<Command> commands = await _db.Commands.Where(x => x.Application == application).ToListAsync();
+        return commands;
+      }
+      catch (Exception e)
+      {
+        return NotFound(e.Message);
+      }
+    }
+
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Command>> GetCommandById(string id)
+    {
+      Guid commandId = Guid.Parse(id);
+
+      Command command = await _db.Commands.FirstOrDefaultAsync(x => x.CommandId == commandId);
+      try
+      {
+        return command;
+      }
+      catch
+      {
+        return NotFound("Command not found");
+      }
+    }
+
     [HttpPost("Add")]
     public async Task<IActionResult> AddCommand(string keyword, string shortcut, string applicationId)
     {
@@ -77,6 +112,14 @@ namespace Apex.Controllers
       };
       await _db.Commands.AddAsync(newCommand);
 
+      await _db.SaveChangesAsync();
+      return Ok("Success");
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateCommand(Command command)
+    {
+      _db.Entry(command).State = EntityState.Modified;
       await _db.SaveChangesAsync();
       return Ok("Success");
     }

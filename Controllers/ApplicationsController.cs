@@ -55,19 +55,9 @@ namespace Apex.Controllers
       Guid applicationId = Guid.Parse(id);
 
       Application application = await _db.Applications.FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
-      Console.WriteLine(application.Name);
       try
       {
-        // if (application.Name == null) throw new Exception("Application not found");
-        // string jsonAnimal = JsonConvert.SerializeObject(application);
-        // Console.WriteLine(json);
-        // var test = JsonConvert.DeserializeObject<Application>(application);
-        return new Application()
-        {
-          ApplicationId = application.ApplicationId,
-          Name = application.Name,
-
-        };
+        return application;
       }
       catch
       {
@@ -123,15 +113,24 @@ namespace Apex.Controllers
     [HttpPost("Add")]
     public async Task<IActionResult> AddApplication(string name, string version, string manufacturer)
     {
-      Application newApplication = new Application
+      try
       {
-        Name = name,
-        Version = version,
-        Manufacturer = manufacturer
-      };
-      await _db.Applications.AddAsync(newApplication);
-      await _db.SaveChangesAsync();
-      return Ok("Success");
+        Application currentApplication = await _db.Applications.FirstOrDefaultAsync(x => x.Name == name && x.Version == version && x.Manufacturer == manufacturer);
+        if (currentApplication.Name != null) throw new Exception("Already exists");
+        Application newApplication = new Application
+        {
+          Name = name,
+          Version = version,
+          Manufacturer = manufacturer
+        };
+        await _db.Applications.AddAsync(newApplication);
+        await _db.SaveChangesAsync();
+        return Ok("Success");
+      }
+      catch
+      {
+        return Ok("Application already exists"); //fix this to return something other than OK
+      }
     }
 
     [HttpPut()]
