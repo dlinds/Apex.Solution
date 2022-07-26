@@ -104,16 +104,23 @@ namespace Apex.Controllers
     {
       // keyword, shortcut, adminID = e7f406ad-56af-433c-a20f-28e354524489, appId = 15bd7f44-c56e-4fb2-81ca-6b5b120ec16b (Windows)
       Application application = await _db.Applications.FirstOrDefaultAsync(x => x.ApplicationId == new Guid(applicationId));
-      Command newCommand = new Command
+      try
       {
-        Keyword = keyword,
-        Shortcut = shortcut,
-        Application = application
-      };
-      await _db.Commands.AddAsync(newCommand);
-
-      await _db.SaveChangesAsync();
-      return Ok("Success");
+        Command currentCommand = await _db.Commands.FirstOrDefaultAsync(x => x.Keyword == keyword && x.Shortcut == shortcut && x.Application == application);
+        if (currentCommand != null) throw new Exception("That command already exists");
+        await _db.Commands.AddAsync(new Command
+        {
+          Keyword = keyword,
+          Shortcut = shortcut,
+          Application = application
+        });
+        await _db.SaveChangesAsync();
+        return Ok("Success");
+      }
+      catch (Exception e)
+      {
+        return BadRequest(e.Message);
+      }
     }
 
     [HttpPut("{id}")]
